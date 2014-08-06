@@ -4,8 +4,8 @@
 // @homepageURL https://github.com/gchr/taxisnet_cp/blob/master/README.md
 // @updateURL https://github.com/gchr/taxisnet_cp/blob/master/taxisnet_easy_cp.user.js
 // @author GChr
-// @version 0.1
-// @date 2014-07-31
+// @version 0.2
+// @date 2014-08-06
 // @namespace http://brainworks.gr
 // @include https://www1.gsis.gr/taxisnet/info/protected/displayDebtInfo.htm
 // @match https://www1.gsis.gr/taxisnet/info/protected/displayDebt*
@@ -20,13 +20,13 @@
 
 (function () {
     var oDebts = {
-                mode:"idle",
-                c:null,
-                req:null,
-                aDebts : []
-            };    
+        mode:"idle",
+        c:null,
+        req:null,
+        aDebts : []
+    };    
     start(oDebts);
-          
+    
     function start(oDebts) {
         var pagecontainer=document.getElementById('tablefullheight');
         if (!pagecontainer) return;
@@ -42,16 +42,6 @@
         buttonElement.setAttribute('role', 'button');
         buttonElement.addEventListener('click', function(){reset();return false;}, false);  
         buttonElement.appendChild(document.createTextNode('Reset'))
-        // add the button
-        var elPos=$('.contenttd').find("table > tbody > tr").first()
-        $(elPos).after(buttonElement);
-    
-        var buttonElement=document.createElement('button');
-        buttonElement.setAttribute('id', "gc-but-cleanup");
-        buttonElement.setAttribute('type', 'button');
-        buttonElement.setAttribute('role', 'button');
-        buttonElement.addEventListener('click', function(){cleanup();return false;}, false);  
-        buttonElement.appendChild(document.createTextNode('Clean up'))
         // add the button
         var elPos=$('.contenttd').find("table > tbody > tr").first()
         $(elPos).after(buttonElement);
@@ -72,13 +62,13 @@
         location.href='displayDebtInfo.htm'
         
     }
-
+    
     function begin(oDebts){
         oDebts.mode = "run";
         unsafeWindow.name = JSON.stringify(oDebts);
         run();
     }
-
+    
     function cleanup(){
         var par = $("#installLine").parent()[0];
         $(par).find(".gc-debt-row > td > .navbtn").parent().remove();
@@ -87,14 +77,14 @@
         $("tr.tblHeader").first().children()[10].remove();
         
     }
-   
+    
     function run() {
-        console.log("TEEEEst");
+        //console.log("Starting");
         var isDebtInfoPage = $("#installLine").length > 0 ? true : false;
         var isDebtCodePage = $("#amnt1").length > 0 ? true : false;
-
+        
         if (unsafeWindow.name == ""){//for the first time
-        	return
+            return
         }         
         
         oDebts = JSON.parse(window.name)
@@ -102,13 +92,11 @@
         
         if (isDebtInfoPage)
         {
-            
-            
             var par = $("#installLine").parent()[0];
             var debts = $(par).find("tr.tblRow1, tr.tblRow2");
             var debtsCount = debts.length;
             oDebts.c = debtsCount;
-    
+            
             //find first debt code button
             for (var i=0;i<oDebts.c;i++) {
                 if (oDebts.aDebts[i] === undefined){
@@ -122,7 +110,8 @@
             }
             
             rearrange(debts,oDebts);
-           
+            cleanup();
+            
         }
         
         /* get debt code and go back */
@@ -134,8 +123,8 @@
             location.href='displayDebtInfo.htm'
             return;
         }
-    
-	}
+        
+    }
     function rearrange(debts,oDebts) {
         var doseis = null
         for (var i=0;i<debts.length;i++) {
@@ -149,7 +138,7 @@
             doseis = $(doseis).find("tr").clone().show();
             
             $(debts[i]).after( doseis );
-			$(debts[i]).before( $("<tr><td>&nbsp;</td></tr>") );
+            $(debts[i]).before( $("<tr><td>&nbsp;</td></tr>") );
             if (i>0){
                 $(debts[i]).before( $("<tr><td>&nbsp;</td></tr>") );
                 $(debts[i]).before( $("<tr><td>&nbsp;</td></tr>") );
@@ -169,5 +158,5 @@
             }
         
     }
- 
+    
 })();
