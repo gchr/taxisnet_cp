@@ -5,7 +5,7 @@
 // @updateURL https://github.com/gchr/taxisnet_cp/blob/master/taxisnet_easy_cp.user.js
 // @author GChr
 // @version 0.2
-// @date 2014-08-06
+// @date 2014-08-31
 // @namespace http://brainworks.gr
 // @include https://www1.gsis.gr/taxisnet/info/protected/displayDebtInfo.htm
 // @match https://www1.gsis.gr/taxisnet/info/protected/displayDebt*
@@ -73,7 +73,6 @@
         var par = $("#installLine").parent()[0];
         $(par).find(".gc-debt-row > td > .navbtn").parent().remove();
         $(par).find(".gc-debt-row > td > input[type='radio'] ").parent().remove();
-        debugger;
         $("tr.tblHeader").first().children()[10].remove();
         
     }
@@ -104,7 +103,19 @@
                     $(theBut).css("background-color","red")
                     oDebts.req = i;
                     unsafeWindow.name = JSON.stringify(oDebts);
-                    window.setTimeout(function(){theBut.click();}, 1000);
+                    window.setTimeout(
+                        function(){
+                            if ( $(theBut).first().dispatchEvent ) {
+                                var e = document.createEvent("MouseEvents");
+                                e.initEvent("click", true, true);
+                                $(theBut).first().dispatchEvent(e);
+                                }
+                                else
+                                {
+                                $(theBut).first().click();
+                                }
+                        }, 
+                        1000);
                     return;
                 }
             }
