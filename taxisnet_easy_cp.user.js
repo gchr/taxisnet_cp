@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name Rearrange TaxisNET
 // @description Rearranges TaxisNet Debts for easier copy paste
-// @homepageURL 
-// @updateURL 
+// @homepageURL https://github.com/gchr/taxisnet_cp/blob/master/README.md
+// @updateURL https://github.com/gchr/taxisnet_cp/blob/master/taxisnet_easy_cp.user.js
 // @author GChr
 // @version 0.1
 // @date 2014-07-31
