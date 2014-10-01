@@ -2,9 +2,9 @@
 // @name Rearrange TaxisNET
 // @description Rearranges TaxisNet Debts for easier copy paste
 // @homepageURL https://github.com/gchr/taxisnet_cp/blob/master/README.md
-// @updateURL https://github.com/gchr/taxisnet_cp/blob/master/taxisnet_easy_cp.user.js
+// @updateURL https://github.com/gchr/taxisnet_cp/raw/master/taxisnet_easy_cp.user.js
 // @author GChr
-// @version 0.4
+// @version 0.5
 // @date 2014-10-01
 // @namespace http://brainworks.gr
 // @include https://www1.gsis.gr/taxisnet/info/protected/displayDebtInfo.htm
@@ -136,8 +136,8 @@
         
         /* get debt code and go back */
         if (isDebtCodePage){
-            var debtCode = $("#amnt1").next().next().children(0).next().text();
-            
+            var debtCode = $(".tblFormPrompt:contains('Ταυτότητα Οφειλής')").css( "background", "blue" ).next().css( "background", "blue" ).text();//.next().text();
+                        
             oDebts.aDebts[oDebts.req] = debtCode;
             unsafeWindow.name = JSON.stringify(oDebts);
             location.href='displayDebtInfo.htm'
