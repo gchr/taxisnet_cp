@@ -5,7 +5,7 @@
 // @updateURL https://github.com/gchr/taxisnet_cp/blob/master/taxisnet_easy_cp.user.js
 // @author GChr
 // @version 0.3
-// @date 2014-09-10
+// @date 2014-10-01
 // @namespace http://brainworks.gr
 // @include https://www1.gsis.gr/taxisnet/info/protected/displayDebtInfo.htm
 // @match https://www1.gsis.gr/taxisnet/info/protected/displayDebt*
@@ -24,7 +24,10 @@
         c:null,
         req:null,
         aDebts : []
-    };
+    };    
+    var isDebtInfoPage;
+    var isDebtCodePage;
+
     start(oDebts);
     
     function start(oDebts) {
@@ -33,9 +36,13 @@
             alert("pagecontainer not found. Exiting.")
             return;
         }
+
+        isDebtInfoPage = $("#installLine").length > 0 ? true : false;
+        isDebtCodePage = $("#amnt1").length > 0 ? true : false;
         
+        if (isDebtInfoPage)
+        	initgui();
         
-        initgui();
         run();
         
     }
@@ -83,8 +90,6 @@
     
     function run() {
         //console.log("Starting");
-        var isDebtInfoPage = $("#installLine").length > 0 ? true : false;
-        var isDebtCodePage = $("#amnt1").length > 0 ? true : false;
         
         if (unsafeWindow.name == ""){//for the first time
             return
