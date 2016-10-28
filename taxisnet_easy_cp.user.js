@@ -4,8 +4,8 @@
 // @homepageURL https://github.com/gchr/taxisnet_cp/blob/master/README.md
 // @updateURL https://github.com/gchr/taxisnet_cp/raw/master/taxisnet_easy_cp.user.js
 // @author GChr
-// @version 0.5.1
-// @date 2014-10-01
+// @version 0.6
+// @date 2016-10-28
 // @namespace http://brainworks.gr
 // @include https://www1.gsis.gr/taxisnet/info/protected/displayDebtInfo.htm
 // @match https://www1.gsis.gr/taxisnet/info/protected/displayDebt*
