@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name Rearrange TaxisNET
+// @name Rearrange & flattify TaxisNET
 // @description Rearranges TaxisNet Debts for easier copy paste
 // @homepageURL https://github.com/gchr/taxisnet_cp/blob/master/README.md
 // @updateURL https://github.com/gchr/taxisnet_cp/raw/master/taxisnet_easy_cp.user.js
 // @author GChr
-// @version 0.5
+// @version 0.5.1
 // @date 2014-10-01
 // @namespace http://brainworks.gr
 // @include https://www1.gsis.gr/taxisnet/info/protected/displayDebtInfo.htm
@@ -171,12 +171,13 @@
         $("#generalTitle").next().remove();
         $("#generalTitle").next().remove();
         $("#generalTitle").remove();
+        $("#installLine").remove();
+        
         
         for (var i=0;i<debts.length;i++) {
             var url
             //var win = window.open(url);
             }
-        
     }
     
 })();
