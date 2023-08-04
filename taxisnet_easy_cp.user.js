@@ -7,8 +7,8 @@
 // @version 0.6
 // @date 2016-10-28
 // @namespace http://brainworks.gr
-// @include https://www1.gsis.gr/taxisnet/info/protected/displayDebtInfo.htm
-// @match https://www1.gsis.gr/taxisnet/info/protected/displayDebt*
+
+// @match https://www1.aade.gr/taxisnet/info/protected/displayDebt*
 // @grant GM_xmlhttpRequest
 // @grant GM_getValue
 // @grant GM_setValue
@@ -19,17 +19,19 @@
 // ==/UserScript==
 
 (function () {
-    var oDebts = {
-        mode:"idle",
-        c:null,
-        req:null,
-        aDebts : []
-    };    
+    var oDebtsInit = {
+        mode: "idle",
+        c: null,
+        req: null,
+        aDebts: [],
+        aDebtsAmount:[]
+    };
+    var oDebts = oDebtsInit;
     var isDebtInfoPage;
     var isDebtCodePage;
 
     start(oDebts);
-    
+
     function start(oDebts) {
         var pagecontainer=document.getElementById('tablefullheight');
         if (!pagecontainer) {
@@ -39,12 +41,11 @@
 
         isDebtInfoPage = $("#installLine").length > 0 ? true : false;
         isDebtCodePage = $("#amnt1").length > 0 ? true : false;
-        
+
         if (isDebtInfoPage)
         	initgui();
-        
+
         run();
-        
     }
     function initgui(){
         var buttonElement=document.createElement('button');
@@ -56,60 +57,63 @@
         // add the button
         var elPos=$('.contenttd').find("table > tbody > tr").first()
         $(elPos).after(buttonElement);
-        
-        var buttonElement=document.createElement('button');
+
+        buttonElement=document.createElement('button');
         buttonElement.setAttribute('id', "gc-but-begin");
         buttonElement.setAttribute('type', 'button');
         buttonElement.setAttribute('role', 'button');
         buttonElement.addEventListener('click', function(){begin(oDebts);return false;}, false);  
-        buttonElement.appendChild(document.createTextNode('Start'))
+        buttonElement.appendChild(document.createTextNode('Parse'))
         // add the button
-        var elPos=$('.contenttd').find("table > tbody > tr").first()
+        elPos=$('.contenttd').find("table > tbody > tr").first()
         $(elPos).after(buttonElement);
-        
-    }        
-    function reset() {
-        unsafeWindow.name = "";
-        location.href='displayDebtInfo.htm'
-        
+
     }
-    
+    function reset() {
+        unsafeWindow.name = JSON.stringify(oDebtsInit);
+        location.href='displayDebtInfoAndPay.htm'
+    }
     function begin(oDebts){
+        oDebts=oDebtsInit
         oDebts.mode = "run";
         unsafeWindow.name = JSON.stringify(oDebts);
+
         run();
     }
-    
+
     function cleanup(){
         var par = $("#installLine").parent()[0];
         $(par).find(".gc-debt-row > td > .navbtn").parent().remove();
         $(par).find(".gc-debt-row > td > input[type='radio'] ").parent().remove();
         $("tr.tblHeader").first().children()[10].remove();
-        
+
     }
-    
+
     function run() {
         //console.log("Starting");
-        
+
         if (unsafeWindow.name == ""){//for the first time
             return
-        }         
-        
-        oDebts = JSON.parse(window.name)
+        }
+
+        oDebts = JSON.parse(unsafeWindow.name)
         if (oDebts.mode !="run") return;
-        
+
         if (isDebtInfoPage)
         {
             var par = $("#installLine").parent()[0];
             var debts = $(par).find("tr.tblRow1, tr.tblRow2");
             var debtsCount = debts.length;
             oDebts.c = debtsCount;
-            
+
             //find first debt code button
             for (var i=0;i<oDebts.c;i++) {
                 if (oDebts.aDebts[i] === undefined){
-                    var theBut = $(debts[i]).find(".navbtn")
+                    // var theBut = $(debts[i]).find(".navbtn")
+                    var theBut = $(debts[i]).find("#showTObut_" + i)
+
                     $(theBut).css("background-color","red")
+                    $(theBut).attr('style', 'background-color: 150px !important');
                     oDebts.req = i;
                     unsafeWindow.name = JSON.stringify(oDebts);
                     window.setTimeout(
@@ -128,35 +132,42 @@
                     return;
                 }
             }
-            
+
             rearrange(debts,oDebts);
-            cleanup();
-            
+            // cleanup();
+
         }
-        
+
         /* get debt code and go back */
         if (isDebtCodePage){
-            var debtCode = $(".tblFormPrompt:contains('Ταυτότητα Οφειλής')").css( "background", "blue" ).next().css( "background", "blue" ).text();//.next().text();
-                        
+            var debtCode = $(".wintxtB10nowrap:contains('Ταυτότητα Οφειλής')").css( "background", "blue" ).next().css( "background", "blue" ).text();//.next().text();
             oDebts.aDebts[oDebts.req] = debtCode;
+
+            var debtAm = $(".wintxtB10nowrap:contains('Ληξ/σμο ποσό')").css( "background", "blue" ).next().css( "background", "blue" ).text();//.next().text();
+            if (debtAm){
+                oDebts.aDebtsAmount[oDebts.req] = debtAm.replace("€","").replace(".","").replace(/^\s+|\s+$/gm,'');
+            } else {
+                oDebts.aDebtsAmount[oDebts.req] = "0";
+            }
+
             unsafeWindow.name = JSON.stringify(oDebts);
-            location.href='displayDebtInfo.htm'
+            location.href='displayDebtInfoAndPay.htm'
             return;
         }
-        
+
     }
     function rearrange(debts,oDebts) {
         var doseis = null
         for (var i=0;i<debts.length;i++) {
             $(debts).removeClass("tblRow2").addClass("tblRow1").addClass("gc-debt-row");
-            
+
             oDebts.aDebts[i] = "'" + oDebts.aDebts[i].replace(/\s/g,"");
             $(debts[i]).children().last().before("<td>"+oDebts.aDebts[i]+"</td>")
-            
+
             doseis = null
             doseis = $("#installmentInfo_"+i).first();
             doseis = $(doseis).find("tr").clone().show();
-            
+
             $(debts[i]).after( doseis );
             $(debts[i]).before( $("<tr><td>&nbsp;</td></tr>") );
             if (i>0){
@@ -164,7 +175,7 @@
                 $(debts[i]).before( $("<tr><td>&nbsp;</td></tr>") );
             }
         }
-        
+
         $("#generalTitle").next().remove();
         $("#generalTitle").next().remove();
         $("#generalTitle").next().remove();
@@ -173,11 +184,16 @@
         $("#generalTitle").remove();
         $("#installLine").remove();
         
-        
-        for (var i=0;i<debts.length;i++) {
-            var url
-            //var win = window.open(url);
-            }
+        var elPos=$('.card-header').parent()[0]
+        $(elPos).before( "<p id='gcancor'>Test</p>" )
+        elPos=$('#gcancor')
+
+        var rows="<table>"
+        for (i=0; i<debts.length;i++) {
+            rows+="<tr><td>" + oDebts.aDebts[i] + "</td><td>" + oDebts.aDebtsAmount[i] + "</td></tr>"
+        }
+        rows+="</table>"
+        $(elPos).append(rows)
     }
-    
+
 })();
