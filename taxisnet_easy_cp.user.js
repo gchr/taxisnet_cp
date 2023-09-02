@@ -9,6 +9,7 @@
 // @namespace http://brainworks.gr
 
 // @match https://www1.aade.gr/taxisnet/info/protected/displayDebt*
+// @match https://www1.aade.gr/taxisnet/info/protected/displayArrangement*
 // @grant GM_xmlhttpRequest
 // @grant GM_getValue
 // @grant GM_setValue
@@ -29,6 +30,7 @@
     var oDebts = oDebtsInit;
     var isDebtInfoPage;
     var isDebtCodePage;
+    var isArrngCodePage;
 
     start(oDebts);
 
@@ -41,6 +43,7 @@
 
         isDebtInfoPage = $("#installLine").length > 0 ? true : false;
         isDebtCodePage = $("#amnt1").length > 0 ? true : false;
+        isArrngCodePage = $("#amnt3").length > 0 ? true : false;
 
         if (isDebtInfoPage)
         	initgui();
@@ -71,7 +74,7 @@
     }
     function reset() {
         unsafeWindow.name = JSON.stringify(oDebtsInit);
-        location.href='displayDebtInfoAndPay.htm'
+        location.href='home.htm'
     }
     function begin(oDebts){
         oDebts=oDebtsInit
@@ -141,7 +144,7 @@
         /* get debt code and go back */
         if (isDebtCodePage){
             var debtCode = $(".wintxtB10nowrap:contains('Ταυτότητα Οφειλής')").css( "background", "blue" ).next().css( "background", "blue" ).text();//.next().text();
-            oDebts.aDebts[oDebts.req] = debtCode;
+            oDebts.aDebts[oDebts.req] = debtCode.replace(/\s/g,"");
 
             var debtAm = $(".wintxtB10nowrap:contains('Ληξ/σμο ποσό')").css( "background", "blue" ).next().css( "background", "blue" ).text();//.next().text();
             if (debtAm){
@@ -154,6 +157,21 @@
             location.href='displayDebtInfoAndPay.htm'
             return;
         }
+        if (isArrngCodePage){
+            var arrngCode = $(".wintxtB10nowrap:contains('Ταυτότητα Ρυθμισμένης Οφειλής')").css( "background", "blue" ).next().css( "background", "blue" ).text();//.next().text();
+            oDebts.aDebts[oDebts.req] = $(".wintxtB10nowrap:contains('Ποσό δόσης')").text().replace(/Ποσό δόσης της /g,"") + " " +  arrngCode.replace(/\s/g,"");
+
+            var arrngAm = $(".wintxtB10nowrap:contains('Ποσό δόσης')").css( "background", "blue" ).next().css( "background", "blue" ).text();//.next().text();
+            if (arrngAm){
+                oDebts.aDebtsAmount[oDebts.req] = arrngAm.replace("€","").replace(".","").replace(/^\s+|\s+$/gm,'');
+            } else {
+                oDebts.aDebtsAmount[oDebts.req] = "0";
+            }
+
+            unsafeWindow.name = JSON.stringify(oDebts);
+            location.href='displayArrangementInfoAndPay.htm'
+            return;
+        }
 
     }
     function rearrange(debts,oDebts) {
@@ -161,7 +179,8 @@
         for (var i=0;i<debts.length;i++) {
             $(debts).removeClass("tblRow2").addClass("tblRow1").addClass("gc-debt-row");
 
-            oDebts.aDebts[i] = "'" + oDebts.aDebts[i].replace(/\s/g,"");
+            //oDebts.aDebts[i] = "'" + oDebts.aDebts[i].replace(/\s/g,"");
+
             $(debts[i]).children().last().before("<td>"+oDebts.aDebts[i]+"</td>")
 
             doseis = null
@@ -185,7 +204,7 @@
         $("#installLine").remove();
         
         var elPos=$('.card-header').parent()[0]
-        $(elPos).before( "<p id='gcancor'>Test</p>" )
+        $(elPos).before( "<p id='gcancor'>"+$(".user-settings").text()+"</p>")
         elPos=$('#gcancor')
 
         var rows="<table>"
